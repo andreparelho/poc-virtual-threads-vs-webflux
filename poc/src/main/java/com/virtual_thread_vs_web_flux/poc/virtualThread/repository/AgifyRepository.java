@@ -27,9 +27,7 @@ public class AgifyRepository extends ApiAbstractClass implements ApiRepository {
 
            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
-           AgifyResponse agifyResponse = this.objectMapper.readValue(response.body(), AgifyResponse.class);
-
-           return agifyResponse;
+           return this.objectMapper.readValue(response.body(), AgifyResponse.class);
        } catch (Exception exception) {
           throw new RuntimeException();
        }

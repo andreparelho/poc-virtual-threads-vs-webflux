@@ -28,8 +28,7 @@ public class JsonPlaceHolderRepository extends ApiAbstractClass implements ApiRe
 
            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
-           JsonPlaceHolderResponse jsonPlaceHolderResponse = this.objectMapper.readValue(response.body(), JsonPlaceHolderResponse.class);
-           return jsonPlaceHolderResponse;
+           return this.objectMapper.readValue(response.body(), JsonPlaceHolderResponse.class);
        } catch (Exception exception) {
           throw new RuntimeException();
        }

@@ -29,8 +29,7 @@ public class DogCeoRepository extends ApiAbstractClass implements ApiRepository 
 
            HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
-           DogCeoResponse dogCeoResponse = this.objectMapper.readValue(response.body(), DogCeoResponse.class);
-           return dogCeoResponse;
+           return this.objectMapper.readValue(response.body(), DogCeoResponse.class);
        } catch (Exception exception) {
           throw new RuntimeException();
        }

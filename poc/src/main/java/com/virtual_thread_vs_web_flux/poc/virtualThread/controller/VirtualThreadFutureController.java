@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 @RestController
-@RequestMapping("/virtual-thread-completable-future")
+@RequestMapping("/virtual-thread")
 public class VirtualThreadFutureController {
     private final VirtualThreadCompletableFutureService service;
 

@@ -1,7 +1,7 @@
 package com.virtual_thread_vs_web_flux.poc.virtualThread.controller;
 
 import com.virtual_thread_vs_web_flux.poc.common.model.response.VirtualThreadResponse;
-import com.virtual_thread_vs_web_flux.poc.virtualThread.service.VirtualThreadService;
+import com.virtual_thread_vs_web_flux.poc.virtualThread.service.VirtualThreadFutureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +13,10 @@ import java.net.URISyntaxException;
 
 @RestController
 @RequestMapping("/virtual-thread")
-public class VirtualThreadController {
-    private final VirtualThreadService service;
+public class VirtualThreadCompletableFutureController {
+    private final VirtualThreadFutureService service;
 
-    public VirtualThreadController(VirtualThreadService service) {
+    public VirtualThreadCompletableFutureController(VirtualThreadFutureService service) {
         this.service = service;
     }
 

@@ -6,17 +6,19 @@ import com.virtual_thread_vs_web_flux.poc.virtualThread.repository.DogCeoReposit
 import com.virtual_thread_vs_web_flux.poc.virtualThread.repository.JsonPlaceHolderRepository;
 import org.springframework.stereotype.Service;
 
+import java.net.URISyntaxException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @Service
-public class VirtualThreadService {
+public class VirtualThreadCompletableFutureService {
     private final JsonPlaceHolderRepository jsonPlaceHolderRepository;
     private final DogCeoRepository dogCeoRepository;
     private final AgifyRepository agifyRepository;
 
-    public VirtualThreadService(JsonPlaceHolderRepository jsonPlaceHolderRepository, DogCeoRepository dogCeoRepository, AgifyRepository agifyRepository) {
+    public VirtualThreadCompletableFutureService(JsonPlaceHolderRepository jsonPlaceHolderRepository, DogCeoRepository dogCeoRepository, AgifyRepository agifyRepository) {
         this.jsonPlaceHolderRepository = jsonPlaceHolderRepository;
         this.dogCeoRepository = dogCeoRepository;
         this.agifyRepository = agifyRepository;
@@ -24,9 +26,31 @@ public class VirtualThreadService {
 
     public VirtualThreadResponse get() {
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            Future<ResponseCommon> agifyResponseFuture = executor.submit(this.agifyRepository::getApi);
-            Future<ResponseCommon> jsonPlaceHolderResponseFuture = executor.submit(this.jsonPlaceHolderRepository::getApi);
-            Future<ResponseCommon> dogCeoResponseFuture = executor.submit(this.dogCeoRepository::getApi);
+            CompletableFuture<ResponseCommon> agifyResponseFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.agifyRepository.getApi();
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompletableFuture<ResponseCommon> jsonPlaceHolderResponseFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.agifyRepository.getApi();
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompletableFuture<ResponseCommon> dogCeoResponseFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return this.agifyRepository.getApi();
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompletableFuture.allOf(agifyResponseFuture, jsonPlaceHolderResponseFuture, dogCeoResponseFuture);
 
             AgifyResponse agifyResponse = (AgifyResponse) agifyResponseFuture.get();
             JsonPlaceHolderResponse jsonPlaceHolderResponse = (JsonPlaceHolderResponse) jsonPlaceHolderResponseFuture.get();

@@ -15,9 +15,9 @@ import java.net.URISyntaxException;
 @RestController
 @RequestMapping("/virtual-thread")
 public class VirtualThreadFutureController {
-    private final VirtualThreadCompletableFutureService service;
+    private final VirtualThreadFutureService service;
 
-    public VirtualThreadFutureController(VirtualThreadCompletableFutureService service) {
+    public VirtualThreadFutureController(VirtualThreadFutureService service) {
         this.service = service;
     }
 

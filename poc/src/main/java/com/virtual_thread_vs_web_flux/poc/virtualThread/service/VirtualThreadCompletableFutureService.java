@@ -32,7 +32,7 @@ public class VirtualThreadCompletableFutureService {
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }, executor);
 
             CompletableFuture<ResponseCommon> jsonPlaceHolderResponseFuture = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -40,7 +40,7 @@ public class VirtualThreadCompletableFutureService {
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }, executor);
 
             CompletableFuture<ResponseCommon> dogCeoResponseFuture = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -48,9 +48,9 @@ public class VirtualThreadCompletableFutureService {
                 } catch (URISyntaxException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }, executor);
 
-            CompletableFuture.allOf(agifyResponseFuture, jsonPlaceHolderResponseFuture, dogCeoResponseFuture);
+            CompletableFuture.allOf(agifyResponseFuture, jsonPlaceHolderResponseFuture, dogCeoResponseFuture).join();
 
             AgifyResponse agifyResponse = (AgifyResponse) agifyResponseFuture.get();
             JsonPlaceHolderResponse jsonPlaceHolderResponse = (JsonPlaceHolderResponse) jsonPlaceHolderResponseFuture.get();

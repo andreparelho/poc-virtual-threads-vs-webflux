@@ -1,6 +1,7 @@
 package com.virtual_thread_vs_web_flux.poc.virtualThread.controller;
 
 import com.virtual_thread_vs_web_flux.poc.common.model.response.VirtualThreadResponse;
+import com.virtual_thread_vs_web_flux.poc.virtualThread.service.VirtualThreadCompletableFutureService;
 import com.virtual_thread_vs_web_flux.poc.virtualThread.service.VirtualThreadFutureService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,9 @@ import java.net.URISyntaxException;
 @RestController
 @RequestMapping("/virtual-thread-completable-future")
 public class VirtualThreadCompletableFutureController {
-    private final VirtualThreadFutureService service;
+    private final VirtualThreadCompletableFutureService service;
 
-    public VirtualThreadCompletableFutureController(VirtualThreadFutureService service) {
+    public VirtualThreadCompletableFutureController(VirtualThreadCompletableFutureService service) {
         this.service = service;
     }
 

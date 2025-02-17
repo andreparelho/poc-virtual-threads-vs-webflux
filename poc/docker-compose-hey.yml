@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  hey:
+    image: ricoli/hey
+    command: >
+      -z 60s -n 500 -c 50 
+      "http://host.docker.internal:8080/virtual-thread"

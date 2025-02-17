@@ -17,6 +17,10 @@ ENV LANG=C.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm
 ENV PATH=$PATH:/usr/lib/jvm/default-jvm/bin
 
+WORKDIR /app
+
+COPY target/poc.jar /app/poc.jar
+
 EXPOSE 8080
 
-CMD ["java", "-jar", "/app/target/poc.jar"]
+CMD ["java", "-jar", "/app/poc.jar"]

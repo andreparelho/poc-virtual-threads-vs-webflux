@@ -2,7 +2,8 @@ package com.virtual_thread_vs_web_flux.poc.virtualThread.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.virtual_thread_vs_web_flux.poc.common.model.response.AgifyResponse;
-import com.virtual_thread_vs_web_flux.poc.common.model.response.ResponseCommon;
+import com.virtual_thread_vs_web_flux.poc.common.repository.ApiAbstract;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
@@ -11,17 +12,21 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThreadConstants.AGIFY_HOLDER_ENDPOINT;
+
 @Repository
-public class AgifyRepository extends ApiAbstractClass implements ApiRepository {
+public class AgifyRepository extends ApiAbstract {
+    @Value("${api.url.AGIFY_API_URL}")
+    private String agifyApiUrl;
+
     protected AgifyRepository(HttpClient client, ObjectMapper objectMapper) {
         super(client, objectMapper);
     }
 
-    @Override
-    public ResponseCommon getApi() throws URISyntaxException {
+    public AgifyResponse getApi() throws URISyntaxException {
        try {
            HttpRequest request = HttpRequest.newBuilder()
-                   .uri(new URI("https://api.agify.io?name=michael"))
+                   .uri(new URI(agifyApiUrl + AGIFY_HOLDER_ENDPOINT))
                    .GET()
                    .build();
 
@@ -29,6 +34,7 @@ public class AgifyRepository extends ApiAbstractClass implements ApiRepository {
 
            return this.objectMapper.readValue(response.body(), AgifyResponse.class);
        } catch (Exception exception) {
+
           throw new RuntimeException();
        }
     }

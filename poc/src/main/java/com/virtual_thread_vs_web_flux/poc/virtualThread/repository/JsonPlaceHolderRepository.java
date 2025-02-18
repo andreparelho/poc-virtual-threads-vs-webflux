@@ -1,9 +1,9 @@
 package com.virtual_thread_vs_web_flux.poc.virtualThread.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.virtual_thread_vs_web_flux.poc.common.model.response.AgifyResponse;
 import com.virtual_thread_vs_web_flux.poc.common.model.response.JsonPlaceHolderResponse;
-import com.virtual_thread_vs_web_flux.poc.common.model.response.ResponseCommon;
+import com.virtual_thread_vs_web_flux.poc.common.repository.ApiAbstract;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.net.URI;
@@ -12,17 +12,22 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThreadConstants.*;
+
 @Repository
-public class JsonPlaceHolderRepository extends ApiAbstractClass implements ApiRepository {
+public class JsonPlaceHolderRepository extends ApiAbstract {
+    @Value("${api.url.JSON_PLACE_HOLDER_API_URL}")
+    private String jsonApiUrl;
+
     protected JsonPlaceHolderRepository(HttpClient client, ObjectMapper objectMapper) {
         super(client, objectMapper);
     }
 
-    @Override
-    public ResponseCommon getApi() throws URISyntaxException {
+    public JsonPlaceHolderResponse getApi() throws URISyntaxException {
        try {
+
            HttpRequest request = HttpRequest.newBuilder()
-                   .uri(new URI("https://jsonplaceholder.typicode.com/posts/1"))
+                   .uri(new URI(jsonApiUrl + JSON_PLACE_HOLDER_ENDPOINT))
                    .GET()
                    .build();
 
@@ -30,6 +35,7 @@ public class JsonPlaceHolderRepository extends ApiAbstractClass implements ApiRe
 
            return this.objectMapper.readValue(response.body(), JsonPlaceHolderResponse.class);
        } catch (Exception exception) {
+
           throw new RuntimeException();
        }
     }

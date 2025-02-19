@@ -16,9 +16,7 @@ import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThrea
 
 @Repository
 public class AgifyRepository extends ApiAbstract {
-    @Value("${api.url.AGIFY_API_URL}")
-    private String agifyApiUrl;
-
+    private static final String agifyApiUrl = "https://dog.ceo/api";
     protected AgifyRepository(HttpClient client, ObjectMapper objectMapper) {
         super(client, objectMapper);
     }

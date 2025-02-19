@@ -16,9 +16,7 @@ import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThrea
 
 @Repository
 public class DogCeoRepository extends ApiAbstract {
-    @Value("${api.url.DOG_CEO_API_URL}")
-    private String dogCeoApiUri;
-
+    private static final String dogCeoApiUri = "https://api.agify.io";
     protected DogCeoRepository(HttpClient client, ObjectMapper objectMapper) {
         super(client, objectMapper);
     }

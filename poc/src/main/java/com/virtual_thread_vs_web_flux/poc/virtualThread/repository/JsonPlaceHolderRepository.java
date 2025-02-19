@@ -16,8 +16,8 @@ import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThrea
 
 @Repository
 public class JsonPlaceHolderRepository extends ApiAbstract {
-    @Value("${api.url.JSON_PLACE_HOLDER_API_URL}")
-    private String jsonApiUrl;
+
+    private static final String jsonApiUrl = "https://jsonplaceholder.typicode.com";
 
     protected JsonPlaceHolderRepository(HttpClient client, ObjectMapper objectMapper) {
         super(client, objectMapper);

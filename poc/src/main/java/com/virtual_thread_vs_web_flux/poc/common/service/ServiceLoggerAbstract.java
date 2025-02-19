@@ -23,4 +23,14 @@ public abstract class ServiceLoggerAbstract {
                 .setMessage(exception.getMessage())
                 .log();
     }
+
+    protected void logError(String className, String method, String message, Throwable throwable) {
+        logger.atError()
+                .addKeyValue("CLASS", className)
+                .addKeyValue("METHOD", method)
+                .addKeyValue("MESSAGE", message)
+                .addKeyValue("STACK_TRACE", throwable.getStackTrace())
+                .setMessage(throwable.getMessage())
+                .log();
+    }
 }

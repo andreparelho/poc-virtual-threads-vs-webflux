@@ -1,7 +1,11 @@
 package com.virtual_thread_vs_web_flux.poc.virtualThread.service;
 
-import com.virtual_thread_vs_web_flux.poc.common.model.response.*;
+import com.virtual_thread_vs_web_flux.poc.common.model.response.AgifyResponse;
+import com.virtual_thread_vs_web_flux.poc.common.model.response.DogCeoResponse;
+import com.virtual_thread_vs_web_flux.poc.common.model.response.JsonPlaceHolderResponse;
+import com.virtual_thread_vs_web_flux.poc.common.model.response.VirtualThreadResponse;
 import com.virtual_thread_vs_web_flux.poc.common.service.ServiceLoggerAbstract;
+import com.virtual_thread_vs_web_flux.poc.virtualThread.config.PersonalizedCompletableFuture;
 import com.virtual_thread_vs_web_flux.poc.virtualThread.repository.AgifyRepository;
 import com.virtual_thread_vs_web_flux.poc.virtualThread.repository.DogCeoRepository;
 import com.virtual_thread_vs_web_flux.poc.virtualThread.repository.JsonPlaceHolderRepository;
@@ -15,14 +19,14 @@ import java.util.concurrent.Executors;
 import static com.virtual_thread_vs_web_flux.poc.virtualThread.util.VirtualThreadConstants.*;
 
 @Service
-public class VirtualThreadCompletableFutureService extends ServiceLoggerAbstract {
-    private final static String CLASS_NAME = VirtualThreadCompletableFutureService.class.getName();
+public class VirtualThreadPersonalizedCompletableFutureService extends ServiceLoggerAbstract {
+    private final static String CLASS_NAME = VirtualThreadPersonalizedCompletableFutureService.class.getName();
 
     private final JsonPlaceHolderRepository jsonPlaceHolderRepository;
     private final DogCeoRepository dogCeoRepository;
     private final AgifyRepository agifyRepository;
 
-    public VirtualThreadCompletableFutureService(JsonPlaceHolderRepository jsonPlaceHolderRepository, DogCeoRepository dogCeoRepository, AgifyRepository agifyRepository) {
+    public VirtualThreadPersonalizedCompletableFutureService(JsonPlaceHolderRepository jsonPlaceHolderRepository, DogCeoRepository dogCeoRepository, AgifyRepository agifyRepository) {
         this.jsonPlaceHolderRepository = jsonPlaceHolderRepository;
         this.dogCeoRepository = dogCeoRepository;
         this.agifyRepository = agifyRepository;
@@ -32,7 +36,7 @@ public class VirtualThreadCompletableFutureService extends ServiceLoggerAbstract
         this.logInfo(CLASS_NAME, GET_METHOD, COMPLETABLE_FUTURE_MESSAGE);
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            CompletableFuture<AgifyResponse> completableFutureAgify = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<AgifyResponse> completableFutureAgify = PersonalizedCompletableFuture.supplyAsync(() -> {
                 try {
                     return this.agifyRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -40,9 +44,9 @@ public class VirtualThreadCompletableFutureService extends ServiceLoggerAbstract
 
                     throw new RuntimeException(exception);
                 }
-            }, executor);
+            });
 
-            CompletableFuture<JsonPlaceHolderResponse> completableFutureJsonPlaceHolder = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<JsonPlaceHolderResponse> completableFutureJsonPlaceHolder = PersonalizedCompletableFuture.supplyAsync(() -> {
                 try {
                     return this.jsonPlaceHolderRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -50,9 +54,9 @@ public class VirtualThreadCompletableFutureService extends ServiceLoggerAbstract
 
                     throw new RuntimeException(exception);
                 }
-            }, executor);
+            });
 
-            CompletableFuture<DogCeoResponse> completableFutureDogCeo = CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<DogCeoResponse> completableFutureDogCeo = PersonalizedCompletableFuture.supplyAsync(() -> {
                 try {
                     return this.dogCeoRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -60,19 +64,23 @@ public class VirtualThreadCompletableFutureService extends ServiceLoggerAbstract
 
                     throw new RuntimeException(exception);
                 }
-            }, executor)
-                    .exceptionally(throwable -> {
-                        this.logError(CLASS_NAME, COMPLETABLE_FUTURE_DOG_CEO, ERROR_MESSAGE_COMPLETABLE_FUTURE, throwable);
-                        return new DogCeoResponse(null, null);
-                    });
+            });
 
-            CompletableFuture<Void> completableFuture = CompletableFuture.allOf(completableFutureAgify, completableFutureJsonPlaceHolder, completableFutureDogCeo);
+            CompletableFuture.allOf(completableFutureAgify, completableFutureJsonPlaceHolder, completableFutureDogCeo).join();
 
-            VirtualThreadResponse response = completableFuture
-                    .thenApply(async -> new VirtualThreadResponse(completableFutureAgify.getNow(null), completableFutureJsonPlaceHolder.getNow(null), completableFutureDogCeo.getNow(null)))
-                    .join();
+            AgifyResponse agifyResponse = completableFutureAgify.get();
+            JsonPlaceHolderResponse jsonPlaceHolderResponse = completableFutureJsonPlaceHolder.get();
+            DogCeoResponse dogCeoResponse = completableFutureDogCeo.get();
 
-            return response;
+            return new VirtualThreadResponse(agifyResponse, jsonPlaceHolderResponse, dogCeoResponse);
+        } catch (ExecutionException exception) {
+            this.logError(CLASS_NAME, GET_METHOD, ERROR_MESSAGE_COMPLETABLE_FUTURE, exception);
+
+            throw new RuntimeException(exception);
+        } catch (InterruptedException exception){
+            this.logError(CLASS_NAME, GET_METHOD, ERROR_MESSAGE_COMPLETABLE_FUTURE, exception);
+
+            throw new RuntimeException(exception);
         }
     }
 }

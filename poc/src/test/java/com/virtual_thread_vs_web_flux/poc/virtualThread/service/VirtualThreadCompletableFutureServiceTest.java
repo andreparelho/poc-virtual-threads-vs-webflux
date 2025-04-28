@@ -18,6 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static java.time.Duration.ofMillis;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +46,7 @@ class VirtualThreadCompletableFutureServiceTest {
     public void t() {
         RetryConfig retryConfig = RetryConfig.custom()
                 .maxAttempts(3)
-                .waitDuration(ofMillis(10))
+                .waitDuration(ofMillis(100))
                 .build();
 
         retry = Retry.of("testRetry", retryConfig);
@@ -52,17 +56,13 @@ class VirtualThreadCompletableFutureServiceTest {
 
     @Test
     void testExecutor_Success() throws URISyntaxException {
-
-        // Arrange
         AgifyResponse agifyResponse = mock(AgifyResponse.class);
         JsonPlaceHolderResponse jsonPlaceHolderResponse = mock(JsonPlaceHolderResponse.class);
         when(agifyRepository.getApi()).thenReturn(agifyResponse);
         when(jsonPlaceHolderRepository.getApi()).thenReturn(jsonPlaceHolderResponse);
 
-        // Act
         VirtualThreadResponse response = service.executor();
 
-        // Assert
         assertNotNull(response);
         assertEquals(agifyResponse, response.agifyResponse());
         assertEquals(jsonPlaceHolderResponse, response.jsonPlaceHolderResponse());
@@ -71,25 +71,21 @@ class VirtualThreadCompletableFutureServiceTest {
 
     @Test
     void testRetryMechanism() throws URISyntaxException {
-        // Arrange
         AgifyResponse agifyResponse = mock(AgifyResponse.class);
         JsonPlaceHolderResponse jsonPlaceHolderResponse = mock(JsonPlaceHolderResponse.class);
 
-        // Simular falhas para retry
         when(agifyRepository.getApi())
                 .thenThrow(new URISyntaxException("Invalid URL", "url"))
                 .thenThrow(new URISyntaxException("Invalid URL", "url"))
                 .thenReturn(agifyResponse); // Sucesso após falha
         when(jsonPlaceHolderRepository.getApi()).thenReturn(jsonPlaceHolderResponse);
 
-        // Act
         VirtualThreadResponse response = service.executor();
 
-        // Assert
         assertNotNull(response);
         assertEquals(agifyResponse, response.agifyResponse());
         assertEquals(jsonPlaceHolderResponse, response.jsonPlaceHolderResponse());
-        verify(agifyRepository, times(3)).getApi(); // Verifique que foi tentado duas vezes
+        verify(agifyRepository, times(3)).getApi();
     }
 
 }

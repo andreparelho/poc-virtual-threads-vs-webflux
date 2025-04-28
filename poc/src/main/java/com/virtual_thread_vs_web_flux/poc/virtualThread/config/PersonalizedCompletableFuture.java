@@ -2,6 +2,8 @@ package com.virtual_thread_vs_web_flux.poc.virtualThread.config;
 
 import java.util.concurrent.*;
 import java.util.function.Supplier;
+
+import io.github.resilience4j.retry.Retry;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -22,6 +24,25 @@ public class PersonalizedCompletableFuture<T> extends CompletableFuture<T> {
             RequestContextHolder.setRequestAttributes(future.actualContext);
             try {
                 future.complete(supplier.get());
+            } catch (Throwable ex) {
+                future.completeExceptionally(ex);
+            } finally {
+                RequestContextHolder.resetRequestAttributes();
+            }
+        }, VIRTUAL_THREAD_EXECUTOR);
+
+        return future;
+    }
+
+    public static <U> CompletableFuture<U> runAsyncWithRetry(Supplier<U> supplier, Retry retry) {
+        Supplier<U> retryingSupplier = Retry.decorateSupplier(retry, supplier);
+
+        PersonalizedCompletableFuture<U> future = new PersonalizedCompletableFuture<>();
+
+        CompletableFuture.runAsync(() -> {
+            RequestContextHolder.setRequestAttributes(future.actualContext);
+            try {
+                future.complete(retryingSupplier.get());
             } catch (Throwable ex) {
                 future.completeExceptionally(ex);
             } finally {

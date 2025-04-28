@@ -24,3 +24,9 @@ COPY target/poc.jar /app/poc.jar
 EXPOSE 8080
 
 CMD ["java", "-jar", "/app/poc.jar"]
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY . .
+RUN mvn clean install
+CMD ["mvn", "gatling:test"]
+

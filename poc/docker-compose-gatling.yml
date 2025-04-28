@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  gatling:
+    image: maven:3.9.6-eclipse-temurin-17
+    container_name: gatling
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: mvn gatling:test

@@ -15,7 +15,7 @@ public class PersonalizedCompletableFuture<T> extends CompletableFuture<T> {
         this.actualContext = RequestContextHolder.getRequestAttributes();
     }
 
-    public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, String log) {
+    public static <U> CompletableFuture<U> runAsync(Supplier<U> supplier) {
         PersonalizedCompletableFuture<U> future = new PersonalizedCompletableFuture<>();
 
         CompletableFuture.runAsync(() -> {

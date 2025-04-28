@@ -36,7 +36,7 @@ public class VirtualThreadPersonalizedCompletableFutureService extends ServiceLo
         this.logInfo(CLASS_NAME, GET_METHOD, COMPLETABLE_FUTURE_MESSAGE);
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            CompletableFuture<AgifyResponse> completableFutureAgify = PersonalizedCompletableFuture.supplyAsync(() -> {
+            CompletableFuture<AgifyResponse> agifyFuture = PersonalizedCompletableFuture.runAsync(() -> {
                 try {
                     return this.agifyRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -46,7 +46,7 @@ public class VirtualThreadPersonalizedCompletableFutureService extends ServiceLo
                 }
             });
 
-            CompletableFuture<JsonPlaceHolderResponse> completableFutureJsonPlaceHolder = PersonalizedCompletableFuture.supplyAsync(() -> {
+            CompletableFuture<JsonPlaceHolderResponse> jsonPlaceHolderFuture = PersonalizedCompletableFuture.runAsync(() -> {
                 try {
                     return this.jsonPlaceHolderRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -56,7 +56,7 @@ public class VirtualThreadPersonalizedCompletableFutureService extends ServiceLo
                 }
             });
 
-            CompletableFuture<DogCeoResponse> completableFutureDogCeo = PersonalizedCompletableFuture.supplyAsync(() -> {
+            CompletableFuture<DogCeoResponse> dogCeoFuture = PersonalizedCompletableFuture.runAsync(() -> {
                 try {
                     return this.dogCeoRepository.getApi();
                 } catch (URISyntaxException exception) {
@@ -66,13 +66,11 @@ public class VirtualThreadPersonalizedCompletableFutureService extends ServiceLo
                 }
             });
 
-            CompletableFuture.allOf(completableFutureAgify, completableFutureJsonPlaceHolder, completableFutureDogCeo).join();
+            var response = agifyFuture
+                    .thenCombine(jsonPlaceHolderFuture, (agify, jsonPlaceHolder) -> new VirtualThreadResponse(agify, jsonPlaceHolder, null))
+                    .thenCombine(dogCeoFuture, (e, dogCeo) -> new VirtualThreadResponse(e.agifyResponse(), e.jsonPlaceHolderResponse(), dogCeo));
 
-            AgifyResponse agifyResponse = completableFutureAgify.get();
-            JsonPlaceHolderResponse jsonPlaceHolderResponse = completableFutureJsonPlaceHolder.get();
-            DogCeoResponse dogCeoResponse = completableFutureDogCeo.get();
-
-            return new VirtualThreadResponse(agifyResponse, jsonPlaceHolderResponse, dogCeoResponse);
+            return response.get();
         } catch (ExecutionException exception) {
             this.logError(CLASS_NAME, GET_METHOD, ERROR_MESSAGE_COMPLETABLE_FUTURE, exception);
 

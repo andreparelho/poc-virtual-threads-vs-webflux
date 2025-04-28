@@ -10,11 +10,17 @@ services:
       - LOG_LEVEL=DEBUG
       - SPRING_DEVTOOLS_RESTART_ENABLED=true
       - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+      - JAVA_OPTS="-Dcom.sun.management.jmxremote
+                  -Dcom.sun.management.jmxremote.port=9010
+                  -Dcom.sun.management.jmxremote.rmi.port=9010
+                  -Dcom.sun.management.jmxremote.authenticate=false
+                  -Dcom.sun.management.jmxremote.ssl=false
+                  -Djava.rmi.server.hostname=0.0.0.0"
     deploy:
       resources:
         limits:
-          cpus: "2"
-          memory: "2g"
+          cpus: "0.5"
+          memory: "500m"
     networks:
       - monitoring
 
